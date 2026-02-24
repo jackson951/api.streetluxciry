@@ -84,6 +84,14 @@ public class OrderService {
     }
 
     @Transactional(readOnly = true)
+    public List<OrderResponse> listAllOrders() {
+        return customerOrderRepository.findAllByOrderByCreatedAtDesc()
+                .stream()
+                .map(ApiMapper::toOrderResponse)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
     public OrderResponse getOrder(Long orderId) {
         CustomerOrder order = customerOrderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found: " + orderId));

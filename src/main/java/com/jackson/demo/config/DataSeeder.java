@@ -120,14 +120,21 @@ public class DataSeeder {
                 productRepository.saveAll(products);
             }
 
-            appUserRepository.findByEmailIgnoreCase("admin@shop.local").orElseGet(() -> {
-                AppUser admin = new AppUser();
-                admin.setEmail("admin@shop.local");
-                admin.setFullName("System Admin");
-                admin.setPasswordHash(passwordEncoder.encode("Admin@12345"));
-                admin.getRoles().add(UserRole.ROLE_ADMIN);
-                return appUserRepository.save(admin);
-            });
+            appUserRepository.findByEmailIgnoreCase("admin@shop.local")
+                    .map(existingAdmin -> {
+                        boolean changed = existingAdmin.getRoles().add(UserRole.ROLE_ADMIN);
+                        changed = existingAdmin.getRoles().add(UserRole.ROLE_CUSTOMER) || changed;
+                        return changed ? appUserRepository.save(existingAdmin) : existingAdmin;
+                    })
+                    .orElseGet(() -> {
+                        AppUser admin = new AppUser();
+                        admin.setEmail("admin@shop.local");
+                        admin.setFullName("System Admin");
+                        admin.setPasswordHash(passwordEncoder.encode("Admin@12345"));
+                        admin.getRoles().add(UserRole.ROLE_ADMIN);
+                        admin.getRoles().add(UserRole.ROLE_CUSTOMER);
+                        return appUserRepository.save(admin);
+                    });
 
             appUserRepository.findByEmailIgnoreCase("customer@shop.local").orElseGet(() -> {
                 Customer customer = customerRepository.findByEmailIgnoreCase("customer@shop.local").orElseGet(() -> {

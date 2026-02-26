@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 
 import com.jackson.demo.entity.Customer;
 import com.jackson.demo.entity.CustomerOrder;
+import com.jackson.demo.repository.CheckoutSessionRepository;
 import com.jackson.demo.repository.CustomerOrderRepository;
 import java.util.List;
 import java.util.Optional;
@@ -25,9 +26,12 @@ class AccessControlServiceTest {
     @Mock
     private CustomerOrderRepository customerOrderRepository;
 
+    @Mock
+    private CheckoutSessionRepository checkoutSessionRepository;
+
     @Test
     void canAccessCustomerReturnsTrueForAdmin() {
-        AccessControlService service = new AccessControlService(customerOrderRepository);
+        AccessControlService service = new AccessControlService(customerOrderRepository, checkoutSessionRepository);
         UUID customerId = UUID.randomUUID();
         Authentication auth = new UsernamePasswordAuthenticationToken(
                 "admin",
@@ -39,7 +43,7 @@ class AccessControlServiceTest {
 
     @Test
     void canAccessCustomerReturnsTrueForOwnerAndFalseForOther() {
-        AccessControlService service = new AccessControlService(customerOrderRepository);
+        AccessControlService service = new AccessControlService(customerOrderRepository, checkoutSessionRepository);
         UUID userId = UUID.randomUUID();
         UUID ownerCustomerId = UUID.randomUUID();
         UUID otherCustomerId = UUID.randomUUID();
@@ -58,7 +62,7 @@ class AccessControlServiceTest {
 
     @Test
     void canAccessOrderReturnsTrueOnlyForOwnerOrAdmin() {
-        AccessControlService service = new AccessControlService(customerOrderRepository);
+        AccessControlService service = new AccessControlService(customerOrderRepository, checkoutSessionRepository);
         UUID ownerCustomerId = UUID.randomUUID();
         UUID orderId = UUID.randomUUID();
 

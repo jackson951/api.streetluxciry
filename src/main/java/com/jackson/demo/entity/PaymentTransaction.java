@@ -25,9 +25,13 @@ public class PaymentTransaction {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "order_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id")
     private CustomerOrder order;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "checkout_session_id")
+    private CheckoutSession checkoutSession;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "customer_id", nullable = false)
@@ -53,6 +57,9 @@ public class PaymentTransaction {
     @Column(length = 500)
     private String gatewayMessage;
 
+    @Column(length = 120)
+    private String idempotencyKey;
+
     @Column(nullable = false, updatable = false)
     private Instant processedAt;
 
@@ -71,6 +78,14 @@ public class PaymentTransaction {
 
     public void setOrder(CustomerOrder order) {
         this.order = order;
+    }
+
+    public CheckoutSession getCheckoutSession() {
+        return checkoutSession;
+    }
+
+    public void setCheckoutSession(CheckoutSession checkoutSession) {
+        this.checkoutSession = checkoutSession;
     }
 
     public Customer getCustomer() {
@@ -127,6 +142,14 @@ public class PaymentTransaction {
 
     public void setGatewayMessage(String gatewayMessage) {
         this.gatewayMessage = gatewayMessage;
+    }
+
+    public String getIdempotencyKey() {
+        return idempotencyKey;
+    }
+
+    public void setIdempotencyKey(String idempotencyKey) {
+        this.idempotencyKey = idempotencyKey;
     }
 
     public Instant getProcessedAt() {

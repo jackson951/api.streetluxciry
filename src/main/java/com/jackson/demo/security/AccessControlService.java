@@ -1,7 +1,9 @@
 package com.jackson.demo.security;
 import java.util.UUID;
 
+import com.jackson.demo.entity.CheckoutSession;
 import com.jackson.demo.entity.CustomerOrder;
+import com.jackson.demo.repository.CheckoutSessionRepository;
 import com.jackson.demo.repository.CustomerOrderRepository;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -11,9 +13,13 @@ import org.springframework.stereotype.Component;
 public class AccessControlService {
 
     private final CustomerOrderRepository customerOrderRepository;
+    private final CheckoutSessionRepository checkoutSessionRepository;
 
-    public AccessControlService(CustomerOrderRepository customerOrderRepository) {
+    public AccessControlService(
+            CustomerOrderRepository customerOrderRepository,
+            CheckoutSessionRepository checkoutSessionRepository) {
         this.customerOrderRepository = customerOrderRepository;
+        this.checkoutSessionRepository = checkoutSessionRepository;
     }
 
     public boolean canAccessCustomer(UUID customerId, Authentication authentication) {
@@ -44,6 +50,24 @@ public class AccessControlService {
         }
         return customerOrderRepository.findById(orderId)
                 .map(CustomerOrder::getCustomer)
+                .map(customer -> customer.getId().equals(user.getCustomerId()))
+                .orElse(false);
+    }
+
+    @SuppressWarnings("null")
+    public boolean canAccessCheckoutSession(UUID checkoutSessionId, Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return false;
+        }
+        if (isAdmin(authentication)) {
+            return true;
+        }
+        Object principal = authentication.getPrincipal();
+        if (!(principal instanceof AuthenticatedUser user) || user.getCustomerId() == null) {
+            return false;
+        }
+        return checkoutSessionRepository.findById(checkoutSessionId)
+                .map(CheckoutSession::getCustomer)
                 .map(customer -> customer.getId().equals(user.getCustomerId()))
                 .orElse(false);
     }

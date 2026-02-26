@@ -12,7 +12,6 @@ import com.jackson.demo.entity.CustomerOrder;
 import com.jackson.demo.exception.BadRequestException;
 import com.jackson.demo.model.OrderStatus;
 import com.jackson.demo.repository.CustomerOrderRepository;
-import com.jackson.demo.repository.ProductRepository;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Optional;
@@ -29,16 +28,12 @@ class OrderServiceTest {
     @Mock
     private CustomerOrderRepository customerOrderRepository;
 
-    @Mock
-    private ProductRepository productRepository;
-
     private OrderService orderService;
 
     @BeforeEach
     void setUp() {
-        CartService cartService = new CartService(null, null, null, null);
         CustomerService customerService = new CustomerService(null, null);
-        orderService = new OrderService(cartService, customerService, customerOrderRepository, productRepository);
+        orderService = new OrderService(customerService, customerOrderRepository);
     }
 
     @Test

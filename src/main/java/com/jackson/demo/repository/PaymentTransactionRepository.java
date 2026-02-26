@@ -8,4 +8,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface PaymentTransactionRepository extends JpaRepository<PaymentTransaction, UUID> {
     List<PaymentTransaction> findByOrderIdOrderByProcessedAtDesc(UUID orderId);
     List<PaymentTransaction> findByCustomerIdOrderByProcessedAtDesc(UUID customerId);
+    List<PaymentTransaction> findByCheckoutSessionIdOrderByProcessedAtDesc(UUID checkoutSessionId);
+    java.util.Optional<PaymentTransaction> findByCheckoutSessionIdAndIdempotencyKey(UUID checkoutSessionId, String idempotencyKey);
+    java.util.Optional<PaymentTransaction> findFirstByCheckoutSessionIdAndStatusOrderByProcessedAtDesc(
+            UUID checkoutSessionId, com.jackson.demo.model.PaymentStatus status);
 }

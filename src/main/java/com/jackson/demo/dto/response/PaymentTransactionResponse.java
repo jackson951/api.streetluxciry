@@ -8,6 +8,7 @@ import java.time.Instant;
 public record PaymentTransactionResponse(
         UUID id,
         UUID orderId,
+        UUID checkoutSessionId,
         UUID customerId,
         UUID paymentMethodId,
         PaymentStatus status,

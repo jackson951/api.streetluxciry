@@ -258,7 +258,8 @@ public class PaymentService {
     private PaymentTransactionResponse toPaymentTransactionResponse(PaymentTransaction transaction) {
         return new PaymentTransactionResponse(
                 transaction.getId(),
-                transaction.getOrder().getId(),
+                transaction.getOrder() != null ? transaction.getOrder().getId() : null,
+                transaction.getCheckoutSession() != null ? transaction.getCheckoutSession().getId() : null,
                 transaction.getCustomer().getId(),
                 transaction.getPaymentMethod().getId(),
                 transaction.getStatus(),

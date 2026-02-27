@@ -39,28 +39,56 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
         http
-            // Enable CORS with our config
-            .cors()
-            .and()
-            .csrf(csrf -> csrf.disable()) // disable CSRF for API
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .exceptionHandling(ex -> ex.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
+            // Enable CORS
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+
+            // Disable CSRF for REST API
+            .csrf(csrf -> csrf.disable())
+
+            // Stateless session (JWT)
+            .sessionManagement(session ->
+                    session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            )
+
+            // Return 401 instead of redirect
+            .exceptionHandling(ex ->
+                    ex.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
+            )
+
+            // Authentication provider
             .authenticationProvider(authenticationProvider())
+
+            // Authorization rules
             .authorizeHttpRequests(auth -> auth
-                // Public endpoints
+
+                // 🔓 Public endpoints
                 .requestMatchers(
                         "/api/v1/auth/**",
                         "/api/v1/health",
+
+                        // ✅ Swagger endpoints
                         "/swagger-ui.html",
                         "/swagger-ui/**",
+                        "/api-docs/**",
                         "/v3/api-docs/**"
                 ).permitAll()
-                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // preflight
-                .requestMatchers(HttpMethod.GET, "/api/v1/categories/**", "/api/v1/products/**").permitAll()
-                // Any other request requires authentication
+
+                // Allow preflight requests
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
+                // Public product/category browsing
+                .requestMatchers(HttpMethod.GET,
+                        "/api/v1/categories/**",
+                        "/api/v1/products/**"
+                ).permitAll()
+
+                // 🔐 Everything else requires authentication
                 .anyRequest().authenticated()
             )
+
+            // Add JWT filter
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
@@ -68,8 +96,9 @@ public class SecurityConfig {
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
+
         CorsConfiguration configuration = new CorsConfiguration();
-        // Only allow your frontend during dev
+
         configuration.setAllowedOriginPatterns(List.of("http://localhost:3000"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
@@ -78,6 +107,7 @@ public class SecurityConfig {
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
+
         return source;
     }
 

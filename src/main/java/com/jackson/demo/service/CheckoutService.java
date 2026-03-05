@@ -232,6 +232,9 @@ public class CheckoutService {
             product.setStockQuantity(product.getStockQuantity() - cartItem.getQuantity());
             productRepository.save(product);
         }
+        if(session.getIsDelivery()){
+         total=total.add(DELIVERY_FEE);
+        }
 
         if (session.getTotalAmount().compareTo(total) != 0) {
             throw new BadRequestException("Cart totals changed after payment approval. Please retry checkout.");

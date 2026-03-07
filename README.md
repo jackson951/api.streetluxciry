@@ -18,8 +18,8 @@ This project is a RESTful API built using Spring Boot, designed to handle variou
 ## Setup Instructions
 1. Clone the repository: 
    ```bash
-   https://github.com/jackson951/api.streetluxciry.git
-   cd api.streetluxciry
+   https://github.com/jackson951/api.streetluxcity.git
+   cd api.streetluxcity
    ```
 2. Update application properties with your database credentials in `src/main/resources/application.properties`.
 3. Run the application: 

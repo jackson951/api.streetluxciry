@@ -61,4 +61,11 @@ public class OrderController {
     public OrderTrackingResponse getOrderTracking(@PathVariable UUID orderId) {
         return orderService.getOrderTracking(orderId);
     }
+
+    @Operation(summary = "Cancel order (only if not yet processed)")
+    @PreAuthorize("hasRole('ADMIN') or @accessControlService.canAccessOrder(#orderId, authentication)")
+    @PostMapping("/orders/{orderId}/cancel")
+    public ResponseEntity<OrderResponse> cancelOrder(@PathVariable UUID orderId) {
+        return ResponseEntity.ok(orderService.cancelOrder(orderId));
+    }
 }

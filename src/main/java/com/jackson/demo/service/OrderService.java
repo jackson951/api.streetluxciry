@@ -85,6 +85,27 @@ public class OrderService {
         return ApiMapper.toOrderResponse(customerOrderRepository.save(order));
     }
 
+    @Transactional
+    public OrderResponse cancelOrder(UUID orderId) {
+        CustomerOrder order = findOrder(orderId);
+        OrderStatus currentStatus = order.getStatus();
+
+        if (currentStatus == OrderStatus.CANCELLED) {
+            throw new BadRequestException("Order is already cancelled");
+        }
+        if (currentStatus == OrderStatus.DELIVERED) {
+            throw new BadRequestException("Cannot cancel a delivered order");
+        }
+
+        // Allow cancellation only if order is not yet processed
+        if (currentStatus != OrderStatus.ORDER_RECEIVED) {
+            throw new BadRequestException("Cannot cancel order: order has already been processed");
+        }
+
+        order.setStatus(OrderStatus.CANCELLED);
+        return ApiMapper.toOrderResponse(customerOrderRepository.save(order));
+    }
+
     @Transactional(readOnly = true)
     public OrderTrackingResponse getOrderTracking(UUID orderId) {
         CustomerOrder order = findOrder(orderId);

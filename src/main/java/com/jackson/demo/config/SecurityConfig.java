@@ -99,10 +99,14 @@ public class SecurityConfig {
 
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOriginPatterns(List.of(
-        "http://localhost:3000",
-        "https://e-commerce-web-app-neon.vercel.app"
-         ));
+       configuration.setAllowedOriginPatterns(List.of(
+    "http://localhost:3000",
+    "https://e-commerce-web-app-neon.vercel.app",
+    "capacitor://localhost",
+    "http://localhost",
+    "https://localhost",
+    "ionic://localhost"
+));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setExposedHeaders(List.of("Authorization"));
